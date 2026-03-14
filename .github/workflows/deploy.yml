@@ -135,8 +135,9 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: 'client-build/dist'
-          target: ${{ env.CLIENT_DEPLOY_PATH }}
+          source: 'client-build'
+          target: ${{ env.CLIENT_DEPLOY_PATH }}/dist
+          strip_components: 1
           overwrite: true
 
       - name: Deploy server and client via SSH
