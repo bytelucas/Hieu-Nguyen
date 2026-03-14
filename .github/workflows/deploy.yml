@@ -5,14 +5,17 @@ on:
     branches: [main]
     paths:
       - 'server/**'
+      - 'client/**'
       - '.github/**'
+      - 'nginx/**'
   workflow_dispatch:
 
 env:
   DEPLOY_PATH: /var/www/metric-tracking
+  CLIENT_DEPLOY_PATH: /var/www/metric-tracking-client
 
 jobs:
-  build:
+  build-server:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,48 +53,103 @@ jobs:
             server/pnpm-lock.yaml
             server/ecosystem.config.cjs
 
+  build-client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: client/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-build
+          path: client/dist
+
   deploy:
-    needs: build
+    needs: [build-server, build-client]
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download artifact
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download server artifact
         uses: actions/download-artifact@v4
         with:
           name: server-build
 
-      - name: Prepare deploy directory on VPS
+      - name: Download client artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: client-build
+
+      - name: Prepare deploy directories on VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script: mkdir -p ${{ env.DEPLOY_PATH }}
+          script: |
+            mkdir -p ${{ env.DEPLOY_PATH }}
+            mkdir -p ${{ env.CLIENT_DEPLOY_PATH }}
 
-      - name: Deploy to VPS via SCP
+      - name: Deploy server to VPS via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: 'dist,package.json,pnpm-lock.yaml,ecosystem.config.cjs'
+          source: 'server/dist,server/package.json,server/pnpm-lock.yaml,server/ecosystem.config.cjs'
           target: ${{ env.DEPLOY_PATH }}
-          strip_components: 0
           overwrite: true
 
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        env:
-          ENV_FILE: ${{ secrets.ENV_FILE }}
-          DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
+      - name: Deploy client to VPS via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: ENV_FILE,DEPLOY_PATH
+          source: 'client-build'
+          target: ${{ env.CLIENT_DEPLOY_PATH }}
+          overwrite: true
+
+      - name: Deploy server and client via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          DEPLOY_PATH: ${{ env.DEPLOY_PATH }}
+          CLIENT_DEPLOY_PATH: ${{ env.CLIENT_DEPLOY_PATH }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: ENV_FILE,DEPLOY_PATH,CLIENT_DEPLOY_PATH
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -112,3 +170,10 @@ jobs:
 
             pm2 save
             pm2 startup || true
+
+            # Flatten client build: client-build/client/dist -> dist
+            if [ -d "$CLIENT_DEPLOY_PATH/client-build/client/dist" ]; then
+              rm -rf "$CLIENT_DEPLOY_PATH/dist" 2>/dev/null || true
+              mv "$CLIENT_DEPLOY_PATH/client-build/client/dist" "$CLIENT_DEPLOY_PATH/dist"
+              rm -rf "$CLIENT_DEPLOY_PATH/client-build"
+            fi

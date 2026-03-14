@@ -28,6 +28,8 @@ async function bootstrap() {
     });
   }
 
+  app.enableCors({ origin: true });
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Metric Tracking API')
     .setDescription('API for tracking health/fitness metrics')
