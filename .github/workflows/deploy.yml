@@ -76,7 +76,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: 'server-build/dist,server-build/package.json,server-build/pnpm-lock.yaml,server-build/ecosystem.config.cjs'
+          source: 'dist,package.json,pnpm-lock.yaml,ecosystem.config.cjs'
           target: ${{ env.DEPLOY_PATH }}
           strip_components: 0
           overwrite: true
