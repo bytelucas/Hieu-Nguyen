@@ -1,0 +1,24 @@
+---
+description: Metric domain and API spec
+globs: "**/metric/**/*.ts"
+alwaysApply: false
+---
+
+# Metric Domain (SPEC)
+
+## Types & Units
+- **distance**: meter, centimeter, inch, feet, yard
+- **temperature**: celsius, fahrenheit, kelvin
+
+## API Endpoints
+- POST /metrics — Add entry (userId, date, value, unit)
+- GET /metrics — List all by type, optional unit conversion
+- GET /metrics/chart — Chart data: latest per day, filter by type & period
+
+## Entity: MetricEntry
+- userId, date, value, unit, type (derived from unit), createdAt
+
+## Business Rules
+- value: positive number
+- date: not future
+- type derived from unit server-side

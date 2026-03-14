@@ -1,0 +1,29 @@
+---
+description: NestJS conventions and project structure
+globs: "**/*.ts"
+alwaysApply: false
+---
+
+# NestJS Conventions
+
+## Path Aliases
+- `@app/*` → src/app/*
+- `@common/*` → src/common/*
+- `@config` → src/configs/index.ts
+- `@configs/*` → src/configs/*
+- `@modules/*` → src/modules/*
+- `@router` → src/router/router.module.ts
+
+## Naming
+- Class: PascalCase
+- File: kebab-case
+- DTO suffix: RequestDto / ResponseDto
+
+## Architecture
+- Repository → data access, injects TypeORM Repository
+- Service → business logic, injects Repository
+- Controller → HTTP layer, injects Service
+
+## Pagination
+- Use `@PaginationOffsetQuery` or `@PaginationCursorQuery` for list endpoints
+- Use `createTypeOrmPaginationAdapter(repository)` with `PaginationService.offset/cursor`
