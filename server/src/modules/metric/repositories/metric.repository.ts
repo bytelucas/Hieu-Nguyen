@@ -82,7 +82,7 @@ export class MetricRepository {
       .setParameters(sub.getParameters())
       .where('me.userId = :userId', { userId })
       .andWhere('me.type = :type', { type })
-      .orderBy('me.date', 'DESC')
+      .orderBy('me.date', 'ASC')
       .getMany();
   }
 
