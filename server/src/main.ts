@@ -28,7 +28,15 @@ async function bootstrap() {
     });
   }
 
-  app.enableCors({ origin: true });
+  app.enableCors({
+    origin: [
+      'https://everfit.bytelucas.site',
+      'http://everfit.bytelucas.site',
+      'http://localhost:5173',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Accept', 'x-user-id'],
+  });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Metric Tracking API')
