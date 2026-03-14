@@ -7,7 +7,6 @@ on:
       - 'server/**'
       - 'client/**'
       - '.github/**'
-      - 'nginx/**'
   workflow_dispatch:
 
 env:
@@ -134,7 +133,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: 'client-build'
+          source: 'client/dist'
           target: ${{ env.CLIENT_DEPLOY_PATH }}
           overwrite: true
 
@@ -170,10 +169,3 @@ jobs:
 
             pm2 save
             pm2 startup || true
-
-            # Flatten client build: client-build/client/dist -> dist
-            if [ -d "$CLIENT_DEPLOY_PATH/client-build/client/dist" ]; then
-              rm -rf "$CLIENT_DEPLOY_PATH/dist" 2>/dev/null || true
-              mv "$CLIENT_DEPLOY_PATH/client-build/client/dist" "$CLIENT_DEPLOY_PATH/dist"
-              rm -rf "$CLIENT_DEPLOY_PATH/client-build"
-            fi
