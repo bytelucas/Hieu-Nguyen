@@ -17,11 +17,15 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
+function getUTCToday(): string {
+  return new Date().toISOString().split('T')[0]
+}
+
 export default function Home() {
   const [userId, setUserId] = useState('poc-user')
 
   // Section 1: Add metric
-  const [addDate, setAddDate] = useState('')
+  const [addDate, setAddDate] = useState(getUTCToday)
   const [addValue, setAddValue] = useState('')
   const [addUnit, setAddUnit] = useState<MetricUnit>('meter')
   const [addStatus, setAddStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
@@ -160,6 +164,7 @@ export default function Home() {
               <input
                 type="date"
                 value={addDate}
+                max={getUTCToday()}
                 onChange={(e) => setAddDate(e.target.value)}
                 className="rounded border border-slate-300 px-2 py-1"
                 required

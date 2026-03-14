@@ -14,10 +14,8 @@ import { MetricUnit } from '@modules/metric/enums/metric-unit.enum';
 @ValidatorConstraint({ name: 'isNotFutureDate' })
 class IsNotFutureDateConstraint implements ValidatorConstraintInterface {
   validate(value: string): boolean {
-    const date = new Date(value);
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-    return date <= today;
+    const today = new Date().toISOString().split('T')[0];
+    return value <= today;
   }
 
   defaultMessage(): string {
