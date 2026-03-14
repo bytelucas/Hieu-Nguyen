@@ -93,6 +93,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           envs: ENV_FILE,DEPLOY_PATH
           script: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
             mkdir -p $DEPLOY_PATH
             cd $DEPLOY_PATH
 
