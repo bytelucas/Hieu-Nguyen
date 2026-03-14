@@ -10,7 +10,7 @@
 ### Live Demo & Links
 
 - **Live Demo:** [https://everfit.bytelucas.site/](https://everfit.bytelucas.site/)
-- **API Docs (Swagger):** [https://everfit.bytelucas.site/api/docs](https://everfit.bytelucas.site/api/docs)
+- **API Docs (Swagger):** [https://everfit-api.bytelucas.site/docs](https://everfit-api.bytelucas.site/docs)
 - **GitHub:** [https://github.com/bytelucas/Hieu-Nguyen](https://github.com/bytelucas/Hieu-Nguyen)
 
 Frontend and backend share the same domain (Nginx reverse proxy `/api` → backend).
@@ -47,7 +47,7 @@ flowchart LR
     end
 
     User --> FE
-    FE -->|"/api/v1/*"| API
+    FE -->|"/api/*"| API
     API --> Svc
     Svc --> UC
     Svc --> DB
