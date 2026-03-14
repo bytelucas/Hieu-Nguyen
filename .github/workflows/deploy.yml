@@ -9,6 +9,10 @@ on:
       - '.github/**'
   workflow_dispatch:
 
+concurrency:
+  group: deploy-metric-tracking
+  cancel-in-progress: true
+
 env:
   DEPLOY_PATH: /var/www/metric-tracking
   CLIENT_DEPLOY_PATH: /var/www/metric-tracking-client
@@ -41,6 +45,9 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Test
+        run: pnpm test
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -126,6 +133,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           source: 'server-build/dist,server-build/package.json,server-build/pnpm-lock.yaml,server-build/ecosystem.config.cjs'
           target: ${{ env.DEPLOY_PATH }}
+          strip_components: 1
           overwrite: true
 
       - name: Deploy client to VPS via SCP
@@ -153,6 +161,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           envs: ENV_FILE,DEPLOY_PATH,CLIENT_DEPLOY_PATH
           script: |
+            set -e
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
