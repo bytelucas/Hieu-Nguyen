@@ -29,13 +29,10 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: [
-      'https://everfit.bytelucas.site',
-      'http://everfit.bytelucas.site',
-      'http://localhost:5173',
-    ],
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Accept', 'x-user-id'],
+    credentials: false,
   });
 
   const swaggerConfig = new DocumentBuilder()
