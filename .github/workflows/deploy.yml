@@ -91,12 +91,14 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          envs: ENV_FILE,DEPLOY_PATH
           script: |
             mkdir -p $DEPLOY_PATH
             cd $DEPLOY_PATH
 
             echo "$ENV_FILE" > .env
 
+            npm install -g pnpm@9
             pnpm install --prod --frozen-lockfile
 
             if pm2 describe metric-tracking > /dev/null 2>&1; then
