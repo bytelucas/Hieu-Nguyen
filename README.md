@@ -152,31 +152,23 @@ Deployed alongside the backend on the same domain.
 - PostgreSQL
 - pnpm
 
-### Installation
+### Run Backend (API)
 
 ```bash
+cd server
 pnpm install
-```
-
-### Configuration
-
-Copy `.env.example` to `.env` and edit:
-
-```bash
-cp .env.example .env
-```
-
-### Run
-
-```bash
-# Development
+cp .env.example .env   # Edit .env with your PostgreSQL config
 pnpm start:dev
-
-# Production build
-pnpm build
-pnpm start:prod
 ```
 
-### Swagger
+API runs at `http://localhost:3000`. Swagger docs: `http://localhost:3000/docs`
 
-API documentation: `http://localhost:3000/docs`
+### Run Frontend (Client)
+
+```bash
+cd client
+pnpm install
+pnpm dev
+```
+
+Client runs at `http://localhost:5173`. Vite proxies `/api` to `localhost:3000`, so the UI talks to the local backend.
