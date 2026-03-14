@@ -4,6 +4,8 @@ import {
   Column,
   CreateDateColumn,
 } from 'typeorm';
+import { MetricType } from '@modules/metric/enums/metric-type.enum';
+import { MetricUnit } from '@modules/metric/enums/metric-unit.enum';
 
 @Entity('metric_entries')
 export class MetricEntry {
@@ -20,10 +22,10 @@ export class MetricEntry {
   value: number;
 
   @Column({ type: 'varchar', length: 50 })
-  unit: string;
+  unit: MetricUnit;
 
   @Column({ type: 'varchar', length: 50 })
-  type: string;
+  type: MetricType;
 
   @CreateDateColumn()
   createdAt: Date;

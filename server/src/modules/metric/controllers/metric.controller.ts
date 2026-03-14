@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Headers, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { MetricService } from '@modules/metric/services/metric.service';
 import {
@@ -13,6 +13,9 @@ import {
   IPaginationQueryOffsetParams,
   IPaginationQueryCursorParams,
 } from '@common/pagination/interfaces/pagination.interface';
+import { CreateMetricDto } from '@modules/metric/dtos/create-metric.dto';
+import { GetMetricsDto } from '@modules/metric/dtos/get-metrics.dto';
+import { GetChartDataDto } from '@modules/metric/dtos/get-chart-data.dto';
 
 @ApiTags('metrics')
 @Controller({
@@ -27,27 +30,51 @@ export class MetricController {
   @Response('metric.created')
   async create(
     @Headers('x-user-id') userId: string,
-    @Body() _body: { date: string; value: number; unit: string },
+    @Body() body: CreateMetricDto,
   ) {
     return {
       data: await this.metricService.create(
         userId ?? 'anonymous',
-        _body.date,
-        _body.value,
-        _body.unit,
+        body.date,
+        body.value,
+        body.unit,
       ),
     };
   }
 
   @Get('chart')
-  @ApiOperation({ summary: 'Get chart data' })
+  @ApiOperation({
+    summary: 'Get chart data — latest entry per day within period',
+  })
   @Response('metric.chart')
-  async getChart(@Headers('x-user-id') userId: string) {
+  async getChart(
+    @Headers('x-user-id') userId: string,
+    @Query() query: GetChartDataDto,
+  ) {
     return {
       data: await this.metricService.getChartData(
         userId ?? 'anonymous',
-        'distance',
-        1,
+        query.type,
+        query.period,
+        query.unit,
+      ),
+    };
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Get all metric entries by type (with optional unit conversion)',
+  })
+  @Response('metric.list')
+  async getList(
+    @Headers('x-user-id') userId: string,
+    @Query() query: GetMetricsDto,
+  ) {
+    return {
+      data: await this.metricService.getList(
+        userId ?? 'anonymous',
+        query.type,
+        query.unit,
       ),
     };
   }
@@ -64,18 +91,5 @@ export class MetricController {
     pagination: IPaginationQueryCursorParams,
   ) {
     return this.metricService.getListCursor(pagination, userId ?? 'anonymous');
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Get all metrics (offset pagination)' })
-  @ResponsePaging('metric.list')
-  async listOffset(
-    @Headers('x-user-id') userId: string,
-    @PaginationOffsetQuery({
-      availableOrderBy: ['createdAt', 'date'],
-    })
-    pagination: IPaginationQueryOffsetParams,
-  ) {
-    return this.metricService.getListOffset(pagination, userId ?? 'anonymous');
   }
 }
