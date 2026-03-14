@@ -133,7 +133,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: 'client/dist'
+          source: 'client-build/client/dist'
           target: ${{ env.CLIENT_DEPLOY_PATH }}
           overwrite: true
 
