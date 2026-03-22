@@ -1,20 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { MetricType } from '@modules/metric/enums/metric-type.enum';
 import { MetricUnit } from '@modules/metric/enums/metric-unit.enum';
 import { IUnitConversionStrategy } from '@common/unit-conversion/interfaces/unit-conversion-strategy.interface';
-import { DistanceConversionStrategy } from '@common/unit-conversion/strategies/distance.strategy';
-import { TemperatureConversionStrategy } from '@common/unit-conversion/strategies/temperature.strategy';
+import { UNIT_CONVERSION_STRATEGIES } from '@common/unit-conversion/unit-conversion.token';
 
 @Injectable()
 export class UnitConversionService {
-  private readonly strategies: IUnitConversionStrategy[];
-
   constructor(
-    private readonly distanceStrategy: DistanceConversionStrategy,
-    private readonly temperatureStrategy: TemperatureConversionStrategy,
-  ) {
-    this.strategies = [distanceStrategy, temperatureStrategy];
-  }
+    @Inject(UNIT_CONVERSION_STRATEGIES)
+    private readonly strategies: IUnitConversionStrategy[],
+  ) {}
 
   convert(
     value: number,
