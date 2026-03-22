@@ -6,16 +6,16 @@ import { UnitConversionService } from '@common/unit-conversion/unit-conversion.s
 
 @Module({
   providers: [
+    DistanceConversionStrategy,
+    TemperatureConversionStrategy,
     {
       provide: UNIT_CONVERSION_STRATEGIES,
-      useClass: DistanceConversionStrategy,
-      multi: true,
-    } as any,
-    {
-      provide: UNIT_CONVERSION_STRATEGIES,
-      useClass: TemperatureConversionStrategy,
-      multi: true,
-    } as any,
+      useFactory: (
+        distance: DistanceConversionStrategy,
+        temperature: TemperatureConversionStrategy,
+      ) => [distance, temperature],
+      inject: [DistanceConversionStrategy, TemperatureConversionStrategy],
+    },
     UnitConversionService,
   ],
   exports: [UnitConversionService],
