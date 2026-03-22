@@ -33,12 +33,7 @@ export class MetricController {
     @Body() body: CreateMetricDto,
   ) {
     return {
-      data: await this.metricService.create(
-        userId ?? 'anonymous',
-        body.date,
-        body.value,
-        body.unit,
-      ),
+      data: await this.metricService.create(userId ?? 'anonymous', body),
     };
   }
 

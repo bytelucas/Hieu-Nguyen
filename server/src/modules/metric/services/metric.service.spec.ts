@@ -81,4 +81,33 @@ describe('MetricService', () => {
       expect(result[0].unit).toBe(MetricUnit.Feet);
     });
   });
+
+  describe('create', () => {
+    it('creates a metric entry using the DTO fields', async () => {
+      const dto = {
+        date: '2026-03-22',
+        value: 100,
+        unit: MetricUnit.Meter,
+      };
+      const mockEntry = {
+        id: 'uuid-1',
+        userId: 'user-1',
+        ...dto,
+        type: MetricType.Distance,
+      } as MetricEntry;
+
+      metricRepository.create.mockResolvedValue(mockEntry);
+
+      const result = await service.create('user-1', dto);
+
+      expect(metricRepository.create).toHaveBeenCalledWith({
+        userId: 'user-1',
+        date: dto.date,
+        value: dto.value,
+        unit: dto.unit,
+        type: MetricType.Distance,
+      });
+      expect(result).toBe(mockEntry);
+    });
+  });
 });

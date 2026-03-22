@@ -5,6 +5,7 @@ import { MetricType } from '@modules/metric/enums/metric-type.enum';
 import { MetricUnit } from '@modules/metric/enums/metric-unit.enum';
 import { UNIT_TYPE_MAP } from '@modules/metric/constants/metric.constant';
 import { UnitConversionService } from '@common/unit-conversion/unit-conversion.service';
+import { CreateMetricDto } from '@modules/metric/dtos/create-metric.dto';
 import {
   IPaginationQueryCursorParams,
   IPaginationQueryOffsetParams,
@@ -31,14 +32,15 @@ export class MetricService {
     return this.metricRepository.findWithPaginationCursor(pagination, userId);
   }
 
-  async create(
-    userId: string,
-    date: string,
-    value: number,
-    unit: MetricUnit,
-  ): Promise<MetricEntry> {
-    const type = UNIT_TYPE_MAP[unit];
-    return this.metricRepository.create({ userId, date, value, unit, type });
+  async create(userId: string, dto: CreateMetricDto): Promise<MetricEntry> {
+    const type = UNIT_TYPE_MAP[dto.unit];
+    return this.metricRepository.create({
+      userId,
+      date: dto.date,
+      value: dto.value,
+      unit: dto.unit,
+      type,
+    });
   }
 
   async getList(
